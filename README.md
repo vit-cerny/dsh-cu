@@ -199,13 +199,19 @@ In background mode, a click needs a control name rather than a raw coordinate,
 because a bare coordinate cannot be delivered without borrowing the mouse:
 
 ```powershell
+dsh-cu act click --uia "File" --window "Notepad" --mode background
 dsh-cu act click --uia "Save" --window "My App" --mode background
 ```
 
-That path uses UI Automation's Invoke pattern and never touches your pointer or
-the foreground window. Everything else (`ocr`, `shot`, `windows`, `read`, and
-`run` observing) is already non-intrusive. For a task that must not disturb what
-you are doing, keep `mode: "background"` and let the model name controls.
+That path uses UI Automation and never touches your pointer or the foreground
+window. It tries Invoke, then Expand (menus), then Toggle (checkboxes), then
+Select, so it works on buttons, menu items and list rows. The result tells you
+which one it used, for example `"method": "uia-expand"`.
+
+If the exact name is not found it retries as a substring match. Everything else
+(`ocr`, `shot`, `windows`, `read`, and `run` observing) is already
+non-intrusive. For a task that must not disturb what you are doing, keep
+`mode: "background"` and let the model name controls.
 
 ## Safety
 
@@ -263,8 +269,10 @@ npm test
 ```
 
 `test.mjs` launches Notepad, types a marker string, reads it back, and checks
-screenshot, monitor filtering and window enumeration. It cleans up after itself.
-Notepad must be able to open, and the desktop must be unlocked.
+screenshot, monitor pinning, window enumeration and background UI Automation.
+It cleans up after itself. Notepad must be able to open, and the desktop must be
+unlocked. The suite was checked red-green: breaking the type action makes it
+fail, and restoring the code makes it pass again.
 
 ## License
 

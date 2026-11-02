@@ -492,12 +492,46 @@ try {
           $cond = New-Object System.Windows.Automation.PropertyCondition(
             [System.Windows.Automation.AutomationElement]::NameProperty, $req.uia)
           $found = $root.FindFirst([System.Windows.Automation.TreeScope]::Descendants, $cond)
+
+          if (-not $found) {
+            # Fall back to a substring match on the visible name.
+            foreach ($el in $root.FindAll([System.Windows.Automation.TreeScope]::Descendants,
+                [System.Windows.Automation.Condition]::TrueCondition)) {
+              try {
+                if ($el.Current.Name -like "*$($req.uia)*") { $found = $el; break }
+              } catch { }
+            }
+          }
+
           if ($found) {
+            # Menu items expand, checkboxes toggle, buttons invoke. Try each,
+            # because a menu has no Invoke pattern and a button has no Expand.
+            $did = $null
             try {
-              $p = $found.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern)
-              $p.Invoke()
-              Respond @{ ok = $true; method = 'uia-invoke'; element = $req.uia; background = $true }
+              $found.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern).Invoke()
+              $did = 'invoke'
             } catch { }
+            if (-not $did) {
+              try {
+                $found.GetCurrentPattern([System.Windows.Automation.ExpandCollapsePattern]::Pattern).Expand()
+                $did = 'expand'
+              } catch { }
+            }
+            if (-not $did) {
+              try {
+                $found.GetCurrentPattern([System.Windows.Automation.TogglePattern]::Pattern).Toggle()
+                $did = 'toggle'
+              } catch { }
+            }
+            if (-not $did) {
+              try {
+                $found.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Select()
+                $did = 'select'
+              } catch { }
+            }
+            if ($did) {
+              Respond @{ ok = $true; method = "uia-$did"; element = $req.uia; background = $true }
+            }
           }
         }
       }

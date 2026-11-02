@@ -81,6 +81,19 @@ try {
   const keys = cu('act', 'key', '--keys', 'shift');
   check('key dispatch', keys.ok === true, keys.method);
 
+  // A named control activates through UI Automation, so no pointer and no
+  // foreground change. This is the path background mode depends on.
+  let uiaOk = false;
+  let uiaDetail = '';
+  try {
+    const r = cu('act', 'click', '--uia', 'File', '--window', 'Notepad', '--mode', 'background');
+    uiaOk = r.ok === true && /^uia-/.test(String(r.method));
+    uiaDetail = r.method;
+  } catch (e) {
+    uiaDetail = String(e.message).slice(0, 100);
+  }
+  check('background UIA click by control name', uiaOk, uiaDetail);
+
   cu('act', 'launch', '--target', 'taskkill');
   try {
     execFileSync('taskkill', ['/IM', 'notepad.exe', '/F'], { stdio: 'ignore' });

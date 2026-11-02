@@ -527,14 +527,27 @@ async function main() {
       if (!verb) throw new Error('usage: dsh-cu act click|type|key|focus|launch|scroll');
       const req = { action: verb };
       if (verb === 'click') {
-        const x = num('x'); const y = num('y');
-        if (x === undefined || y === undefined) throw new Error('click needs --x and --y');
-        req.x = x; req.y = y;
+        const uia = flag('uia');
+        const winFlag = flag('window');
+        // A named control needs no coordinates: UI Automation activates it by
+        // name. Only a raw click has to say where.
+        if (!uia) {
+          const x = num('x'); const y = num('y');
+          if (x === undefined || y === undefined) {
+            throw new Error('click needs --x and --y, or --uia "<control name>" with --window');
+          }
+          req.x = x; req.y = y;
+        } else {
+          if (!winFlag) throw new Error('--uia needs --window so the control can be found');
+          req.uia = uia;
+          req.window = winFlag;
+          req.x = num('x') ?? 0;
+          req.y = num('y') ?? 0;
+        }
         if (cfg.monitor) req.monitor = cfg.monitor;
         if (has('double')) req.double = true;
         if (flag('button')) req.button = flag('button');
-        if (flag('uia')) req.uia = flag('uia');
-        if (flag('window')) req.window = flag('window');
+        if (winFlag && !req.window) req.window = winFlag;
         if (cfg.mode === 'background') req.mode = 'background';
       }
       if (verb === 'type') {
