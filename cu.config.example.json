@@ -1,0 +1,17 @@
+{
+  "_comment": "Copy to cu.config.json and edit. Never commit your real key.",
+
+  "brain": {
+    "_providerOptions": "none | session | typesafe | openai",
+
+    "provider": "session",
+
+    "baseURL": "",
+    "apiKey": "",
+    "model": ""
+  },
+
+  "monitor": 0,
+  "mode": "foreground",
+  "maxSteps": 10
+}

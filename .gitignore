@@ -1,0 +1,8 @@
+﻿node_modules/
+cu.config.json
+*.log
+*.png
+shot-*.png
+ocr-*.png
+.DS_Store
+Thumbs.db

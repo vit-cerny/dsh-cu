@@ -1,0 +1,39 @@
+{
+  "name": "dsh-cu",
+  "version": "0.1.0",
+  "description": "Windows computer use for agents: read the screen, click, and type. Any model, any monitor.",
+  "scripts": {
+    "test": "node test.mjs"
+  },
+  "keywords": [
+    "computer-use",
+    "windows",
+    "ui-automation",
+    "ocr",
+    "desktop-automation",
+    "agent"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "module",
+  "os": [
+    "win32"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "dsh-cu": "bin/dsh-cu.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vit-cerny/dsh-cu.git"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "README.md",
+    "LICENSE",
+    "cu.config.example.json"
+  ]
+}
